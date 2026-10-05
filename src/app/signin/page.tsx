@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/hooks/useLanguage";
 import { getAuthErrorKey } from "@/lib/auth/errors";
 import { signInWithOAuth } from "@/lib/auth/oauth";
+import { safeInternalPath } from "@/lib/auth/routes";
 import { validateSignIn } from "@/lib/auth/validation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -29,9 +30,7 @@ function SignInForm() {
   // If already authenticated, redirect to destination
   useEffect(() => {
     if (!loading && user) {
-      const next = searchParams.get("next");
-      const destination =
-        next && next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
+      const destination = safeInternalPath(searchParams.get("next"));
       router.replace(destination);
     }
   }, [loading, user, router, searchParams]);
@@ -65,10 +64,9 @@ function SignInForm() {
         setFormError(getAuthErrorKey(error));
         return;
       }
-      const next = searchParams.get("next");
-      const destination =
-        next && next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
-      router.push(destination);
+      const destination = safeInternalPath(searchParams.get("next"));
+      router.replace(destination);
+      router.refresh();
     } catch (error) {
       setFormError(getAuthErrorKey(error));
     } finally {
@@ -101,7 +99,9 @@ function SignInForm() {
       ? "auth.errors.oauthFailed"
       : oauthError === "confirm"
         ? "auth.errors.confirmFailed"
-        : null);
+        : oauthError === "session"
+          ? "auth.errors.sessionFailed"
+          : null);
 
   return (
     <div className="relative min-h-screen bg-white text-neutral-900 dark:bg-[#0A090E] dark:text-neutral-100 transition-colors flex flex-col">

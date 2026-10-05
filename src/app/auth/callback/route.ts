@@ -2,20 +2,14 @@ import { NextResponse } from "next/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { upsertOwnProfile } from "@/lib/auth/profile";
-
-function safeNextPath(next: string | null) {
-  if (next && next.startsWith("/") && !next.startsWith("//")) {
-    return next;
-  }
-  return "/dashboard";
-}
+import { safeInternalPath } from "@/lib/auth/routes";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
-  const next = safeNextPath(searchParams.get("next"));
+  const next = safeInternalPath(searchParams.get("next"));
 
   const supabase = await createClient();
 
@@ -40,11 +34,16 @@ export async function GET(request: Request) {
 
   const {
     data: { user },
+    error: userError,
   } = await supabase.auth.getUser();
 
-  if (user) {
-    await upsertOwnProfile(supabase, user);
+  if (userError || !user) {
+    console.error("Auth callback completed without an authenticated user.", {
+      error: userError?.message,
+    });
+    return NextResponse.redirect(`${origin}/signin?error=session`);
   }
 
+  await upsertOwnProfile(supabase, user);
   return NextResponse.redirect(`${origin}${next}`);
 }

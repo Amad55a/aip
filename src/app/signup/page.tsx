@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/hooks/useLanguage";
 import { getAuthErrorKey } from "@/lib/auth/errors";
 import { signInWithOAuth } from "@/lib/auth/oauth";
+import { getAuthCallbackUrl } from "@/lib/auth/routes";
 import { validateSignUp } from "@/lib/auth/validation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -64,13 +65,12 @@ export default function SignUpPage() {
     setPending("email");
     try {
       const supabase = createClient();
-      const origin = window.location.origin;
       const { data, error } = await supabase.auth.signUp({
         email: normalizedEmail,
         password: normalizedPassword,
         options: {
           data: { full_name: normalizedFullName },
-          emailRedirectTo: `${origin}/auth/callback`,
+          emailRedirectTo: getAuthCallbackUrl(window.location.origin),
         },
       });
 
@@ -84,7 +84,8 @@ export default function SignUpPage() {
         return;
       }
 
-      router.push("/dashboard");
+      router.replace("/dashboard");
+      router.refresh();
     } catch (error) {
       setFormError(getAuthErrorKey(error));
     } finally {

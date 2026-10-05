@@ -83,7 +83,13 @@ console.log("✓ Auth error key mappings verified.");
 
 // 3. Route Access Tests
 console.log("\n[3/6] Testing Authenticated and Protected Routes...");
-const { isProtectedRoute, isGuestOnlyRoute } = transpileAndEval("./src/lib/auth/routes.ts");
+const {
+  canonicalProductionHost,
+  getAuthCallbackUrl,
+  isProtectedRoute,
+  isGuestOnlyRoute,
+  safeInternalPath,
+} = transpileAndEval("./src/lib/auth/routes.ts");
 
 assert.strictEqual(isProtectedRoute("/dashboard"), true);
 assert.strictEqual(isProtectedRoute("/dashboard/"), true);
@@ -96,6 +102,20 @@ assert.strictEqual(isGuestOnlyRoute("/"), true);
 assert.strictEqual(isGuestOnlyRoute("/signin"), true);
 assert.strictEqual(isGuestOnlyRoute("/signup"), true);
 assert.strictEqual(isGuestOnlyRoute("/dashboard"), false);
+assert.strictEqual(canonicalProductionHost("www.techpathai.tech"), "techpathai.tech");
+assert.strictEqual(canonicalProductionHost("techpathai.tech"), null);
+assert.strictEqual(canonicalProductionHost("localhost"), null);
+assert.strictEqual(
+  getAuthCallbackUrl("https://www.techpathai.tech"),
+  "https://techpathai.tech/auth/callback"
+);
+assert.strictEqual(
+  getAuthCallbackUrl("http://localhost:3000"),
+  "http://localhost:3000/auth/callback"
+);
+assert.strictEqual(safeInternalPath("/learn/html?tab=lesson#content"), "/learn/html?tab=lesson#content");
+assert.strictEqual(safeInternalPath("//evil.example/path"), "/dashboard");
+assert.strictEqual(safeInternalPath("/\\\\evil.example/path"), "/dashboard");
 console.log("✓ Public, guest-only, dashboard, and profile routes verified.");
 
 // 4. Profile Fields Extraction Tests
@@ -226,6 +246,9 @@ assert.ok(so.appShell.aiUsage.limitReached.includes("{limit}"));
 assert.ok(ar.appShell.aiUsage.limitReached.includes("{limit}"));
 assert.notStrictEqual(ar.appShell.aiUsage.limitReached, en.appShell.aiUsage.limitReached);
 assert.notStrictEqual(so.appShell.aiUsage.limitReached, en.appShell.aiUsage.limitReached);
+assert.ok(en.auth.errors.sessionFailed);
+assert.ok(ar.auth.errors.sessionFailed);
+assert.ok(so.auth.errors.sessionFailed);
 console.log("✓ Profile, quiz, roadmap, RTL theme, and localized AI quota messages verified.");
 
 const { getAIDailyLimit } = transpileAndEval("./src/lib/ai/usage.ts");

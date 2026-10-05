@@ -327,6 +327,7 @@ const en = {
       invalidCredentials: "Email or password is incorrect.",
       oauthFailed: "Unable to sign in with this provider. Please try again.",
       confirmFailed: "Email confirmation link is invalid or expired.",
+      sessionFailed: "Sign-in could not be completed. Please try again.",
       notConfigured: "Supabase is not configured yet. Please configure your environment variables.",
       network: "Unable to connect. Please check your connection and try again.",
       unknown: "Something went wrong. Please try again.",

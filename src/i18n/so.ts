@@ -327,6 +327,7 @@ const so: Translations = {
       invalidCredentials: "Email-ka ama furaha sirta ma saxna.",
       oauthFailed: "Waa la awoodi waayay in lagu galo adeeg bixiyahan. Fadlan isku day mar kale.",
       confirmFailed: "Xiriirinta xaqiijinta email-ka ma saxna ama way dhacday.",
+      sessionFailed: "Gelitaanka lama dhammaystiri karin. Fadlan mar kale isku day.",
       notConfigured: "Supabase lama habayn weli. Fadlan hagaaji doorsoomayaasha deegaanka.",
       network: "Lama xiriiri karin. Fadlan hubi khadkaaga internet-ka oo isku day mar kale.",
       unknown: "Wax baa qaldamay. Fadlan isku day mar kale.",
