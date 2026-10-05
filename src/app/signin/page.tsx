@@ -108,7 +108,7 @@ function SignInForm() {
       <AuthPageControls />
 
       <div className="flex-1 lg:grid lg:grid-cols-2">
-        <section className="flex items-center justify-center p-8 sm:p-12 lg:p-16 bg-white dark:bg-[#0A090E] order-2 lg:order-1">
+        <section className="order-2 flex min-h-svh items-center justify-center p-6 sm:p-12 lg:order-1 lg:min-h-0 lg:p-16 bg-white dark:bg-[#0A090E]">
           <div className="w-full max-w-md space-y-8">
             <div>
               <Link
@@ -239,7 +239,7 @@ function SignInForm() {
           </div>
         </section>
 
-        <section className="relative flex flex-col justify-between border-t lg:border-t-0 ltr:lg:border-l rtl:lg:border-r border-neutral-200 dark:border-neutral-800 bg-[#FAF8FC] dark:bg-[#0E0B14] p-8 lg:p-16 transition-colors order-1 lg:order-2">
+        <section className="relative hidden flex-col justify-between border-t lg:flex lg:border-t-0 ltr:lg:border-l rtl:lg:border-r border-neutral-200 dark:border-neutral-800 bg-[#FAF8FC] dark:bg-[#0E0B14] p-8 lg:p-16 transition-colors order-1 lg:order-2">
           <div>
             <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#7D288F] dark:text-purple-400">
               <span className="h-1.5 w-1.5 rounded-full bg-[#7D288F] dark:bg-purple-400" />

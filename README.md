@@ -60,6 +60,13 @@ both a key and model are enabled. `AI_PROVIDER_ORDER` can override the default
 provider's timeout (default 20 seconds). Provider credentials must remain
 server-side; never prefix them with `NEXT_PUBLIC_`.
 
+For authenticated public-web search, configure `GOOGLE_SEARCH_API_KEY` and
+`GOOGLE_SEARCH_ENGINE_ID` in `.env.local`. The API key is server-only and must
+never use a `NEXT_PUBLIC_` prefix. This project uses the TechPath AI Programmable
+Search Engine ID `615dccb62b5204d35`; the Search Engine must be configured to
+search the public web, and the Google Custom Search API must be enabled for the
+key's Google Cloud project.
+
 Each authenticated user gets `5` shared questions per UTC calendar day across
 lesson and project AI. The limit is enforced by PostgreSQL, not an environment
 variable or browser count, so direct RPC calls cannot raise it. Each learner
@@ -217,14 +224,23 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
    `GROQ_MODEL`, `OPENROUTER_API_KEY`, and `OPENROUTER_MODEL` for configured
    fallbacks. Use model IDs supported by the corresponding accounts. Never
    create `NEXT_PUBLIC_*` AI credentials.
-4. Apply and verify Supabase migrations in the same project referenced by
+4. To enable Web Search, add `GOOGLE_SEARCH_API_KEY` and
+   `GOOGLE_SEARCH_ENGINE_ID` to **Vercel → Project → Settings → Environment
+   Variables → Production**. Use the Google API key from the Google Cloud
+   project where Custom Search API is enabled and the Programmable Search
+   Engine configured for public-web search. Keep the API key server-only; do
+   not use a `NEXT_PUBLIC_` name. Redeploy after setting the variables.
+5. Apply and verify Supabase migrations in the same project referenced by
    `NEXT_PUBLIC_SUPABASE_URL` before deploying the app. In Supabase Auth URL
    Configuration, set the exact production Site URL and add
    `https://<production-domain>/auth/callback` to Redirect URLs; retain the
    localhost callback for development. Configure Google/GitHub OAuth with
    Supabase's exact provider callback URL shown in the dashboard.
-5. Deploy a Vercel Preview, test sign-in and contextual lesson/project AI, then
-   deploy to Production. Redeploy after changing Vercel environment variables.
+6. Deploy a Vercel Preview, test sign-in and contextual lesson/project AI, then
+   deploy to Production. Verify web search at
+   `https://techpathai.tech/web-search` and
+   `https://techpathai.tech/web-search?q=javascript`. Redeploy after changing
+   Vercel environment variables.
 
 Run `npm test`, `npm run lint`, and `npm run build` before deploying. Keep
 `.env.local` out of Git. Rotate provider credentials immediately if they are

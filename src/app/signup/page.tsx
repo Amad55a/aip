@@ -118,7 +118,7 @@ export default function SignUpPage() {
       <AuthPageControls />
 
       <div className="flex-1 lg:grid lg:grid-cols-2">
-        <section className="relative flex flex-col justify-between border-b lg:border-b-0 ltr:lg:border-r rtl:lg:border-l border-neutral-200 dark:border-neutral-800 bg-[#FAF8FC] dark:bg-[#0E0B14] p-8 lg:p-16 transition-colors">
+        <section className="relative hidden flex-col justify-between border-b lg:flex lg:border-b-0 ltr:lg:border-r rtl:lg:border-l border-neutral-200 dark:border-neutral-800 bg-[#FAF8FC] dark:bg-[#0E0B14] p-8 lg:p-16 transition-colors order-2">
           <div>
             <Link
               href="/"
@@ -162,9 +162,21 @@ export default function SignUpPage() {
           </div>
         </section>
 
-        <section className="flex items-center justify-center p-8 sm:p-12 lg:p-16 bg-white dark:bg-[#0A090E]">
+        <section className="order-1 flex min-h-svh min-w-0 items-center justify-center p-6 sm:p-12 lg:min-h-0 lg:p-16 bg-white dark:bg-[#0A090E]">
           <div className="w-full max-w-md space-y-8">
             <div>
+              <Link
+                href="/"
+                className="mb-6 inline-flex items-center gap-2.5 text-lg font-bold tracking-tight text-neutral-900 dark:text-white group lg:hidden"
+              >
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#7D288F] text-white shadow-sm transition-transform group-hover:scale-105">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <polyline points="16 18 22 12 16 6" />
+                    <polyline points="8 6 2 12 8 18" />
+                  </svg>
+                </div>
+                <span>TechPath AI</span>
+              </Link>
               <h2 className="text-3xl font-extrabold tracking-tight text-neutral-900 dark:text-white">
                 {t("auth.signUp.title")}
               </h2>

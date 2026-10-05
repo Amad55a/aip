@@ -12,6 +12,7 @@ const LINKS = [
   { href: "/dashboard", key: "appShell.nav.dashboard" },
   { href: "/learn", key: "appShell.nav.learn" },
   { href: "/projects", key: "appShell.nav.projects" },
+  { href: "/web-search", key: "appShell.webSearch.title" },
 ];
 
 export default function MobileHeaderMenu() {

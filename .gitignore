@@ -33,6 +33,7 @@ yarn-error.log*
 # environment secrets
 .env
 .env.local
+.env.*
 .env.*.local
 !.env.local.example
 

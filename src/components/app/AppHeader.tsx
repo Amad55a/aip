@@ -6,6 +6,7 @@ import ThemeToggle from "@/components/landing/ThemeToggle";
 import UserMenu from "@/components/app/UserMenu";
 import AppSearch from "@/components/app/AppSearch";
 import MobileHeaderMenu from "@/components/app/MobileHeaderMenu";
+import { useLanguage } from "@/hooks/useLanguage";
 
 /* ─── Brand Logo ─────────────────────────────────────────────────── */
 function BrandLogo() {
@@ -35,6 +36,8 @@ function BrandLogo() {
 
 /* ─── Component ──────────────────────────────────────────────────── */
 export default function AppHeader() {
+  const { t } = useLanguage();
+
   return (
     <header
       className="
@@ -52,8 +55,20 @@ export default function AppHeader() {
 
       <MobileHeaderMenu />
 
-      <div className="order-3 w-full md:order-2 md:w-auto">
-        <AppSearch mobileFullWidth />
+      <div className="order-3 flex w-full items-center gap-2 md:order-2 md:w-auto">
+        <div className="min-w-0 flex-1 md:flex-none">
+          <AppSearch mobileFullWidth />
+        </div>
+        <Link
+          href="/web-search"
+          className="hidden min-h-9 shrink-0 items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 text-sm font-medium text-[var(--fg)] transition-colors hover:border-[var(--brand-border)] hover:text-[#7D288F] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7D288F] md:inline-flex"
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z" />
+          </svg>
+          <span>{t("appShell.webSearch.title")}</span>
+        </Link>
       </div>
 
       <div className="ms-auto hidden items-center gap-2 sm:gap-3 md:order-3 md:flex">

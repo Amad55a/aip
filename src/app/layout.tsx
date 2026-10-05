@@ -20,17 +20,17 @@ export const metadata: Metadata = {
   metadataBase: process.env.NEXT_PUBLIC_SITE_URL
     ? new URL(process.env.NEXT_PUBLIC_SITE_URL)
     : undefined,
-  title: "From Code to AI | Learn. Build. Understand. Grow.",
+  title: "TechPath AI",
   description:
-    "A technology learning platform for people who want to learn, build, and grow. From code to AI and beyond.",
+    "A technology learning platform for people who want to learn, build, and grow.",
   openGraph: {
-    title: "From Code to AI",
+    title: "TechPath AI",
     description: "Learn. Build. Understand. Grow.",
     type: "website",
   },
   twitter: {
     card: "summary",
-    title: "From Code to AI",
+    title: "TechPath AI",
     description: "Learn. Build. Understand. Grow.",
   },
 };
