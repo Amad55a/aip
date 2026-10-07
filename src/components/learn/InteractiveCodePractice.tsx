@@ -101,6 +101,51 @@ function buildHtmlCssSandboxDocument(html: string, css: string) {
   </html>`;
 }
 
+function CodeEditorPanel({
+  value,
+  onChange,
+  language,
+  minHeight = "220px",
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  language: "javascript" | "html" | "css";
+  minHeight?: string;
+}) {
+  const lineCount = Math.max(value.split("\n").length, 1);
+
+  return (
+    <div className="grid grid-cols-[44px_minmax(0,1fr)] overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--bg)]">
+      <div className="select-none border-r border-[var(--border)] bg-[var(--surface)] px-2 py-4 text-right text-[11px] leading-6 text-[var(--fg-muted)] font-mono">
+        {Array.from({ length: lineCount }, (_, index) => (
+          <div key={`line-${index + 1}`}>{index + 1}</div>
+        ))}
+      </div>
+      <textarea
+        value={value}
+        spellCheck={false}
+        onChange={(event) => onChange(event.target.value)}
+        onKeyDown={(event) => {
+          if (event.key !== "Tab") return;
+          event.preventDefault();
+          const target = event.currentTarget;
+          const start = target.selectionStart;
+          const end = target.selectionEnd;
+          const nextValue = `${value.slice(0, start)}  ${value.slice(end)}`;
+          onChange(nextValue);
+          requestAnimationFrame(() => {
+            target.selectionStart = start + 2;
+            target.selectionEnd = start + 2;
+          });
+        }}
+        className="min-h-[220px] w-full resize-y border-0 bg-transparent p-4 font-mono text-sm leading-6 text-[var(--fg)] outline-none"
+        style={{ minHeight }}
+        aria-label={`${language} editor`}
+      />
+    </div>
+  );
+}
+
 export default function InteractiveCodePractice({
   title,
   mode,
@@ -261,11 +306,11 @@ export default function InteractiveCodePractice({
             <label className="block border-b border-[var(--border)] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--fg-muted)]">
               JavaScript
             </label>
-            <textarea
+            <CodeEditorPanel
               value={jsValue}
-              onChange={(event) => setJsValue(event.target.value)}
-              spellCheck={false}
-              className="min-h-[220px] w-full resize-y border-0 bg-transparent p-4 font-mono text-sm leading-6 text-[var(--fg)] outline-none"
+              onChange={setJsValue}
+              language="javascript"
+              minHeight="220px"
             />
           </div>
 
@@ -330,22 +375,22 @@ export default function InteractiveCodePractice({
             <label className="block border-b border-[var(--border)] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--fg-muted)]">
               {t("content.html")}
             </label>
-            <textarea
+            <CodeEditorPanel
               value={htmlValue}
-              onChange={(event) => setHtmlValue(event.target.value)}
-              spellCheck={false}
-              className="min-h-[220px] w-full resize-y border-0 bg-transparent p-4 font-mono text-sm leading-6 text-[var(--fg)] outline-none"
+              onChange={setHtmlValue}
+              language="html"
+              minHeight="220px"
             />
           </div>
           <div className="bg-[var(--bg)]">
             <label className="block border-b border-[var(--border)] px-3 py-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--fg-muted)]">
               {t("content.css")}
             </label>
-            <textarea
+            <CodeEditorPanel
               value={cssValue}
-              onChange={(event) => setCssValue(event.target.value)}
-              spellCheck={false}
-              className="min-h-[220px] w-full resize-y border-0 bg-transparent p-4 font-mono text-sm leading-6 text-[var(--fg)] outline-none"
+              onChange={setCssValue}
+              language="css"
+              minHeight="220px"
             />
           </div>
         </div>
