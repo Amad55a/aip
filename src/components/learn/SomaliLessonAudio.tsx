@@ -35,6 +35,8 @@ function buildCandidateUrls(audioUrl?: string | null, audioPath?: string | null)
     if (fileName && fileName !== normalized) {
       candidates.add(`${base}/${fileName}`);
     }
+
+    return Array.from(candidates);
   }
 
   const fallbackStatic = `/${trimmed.replace(/^\/+/, "")}`;
