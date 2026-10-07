@@ -50,6 +50,8 @@ export function AskAIMentorButton({
     setOpen((current) => !current);
   }
 
+  const mentorLabel = codeContext ? "Ask about this code" : t("appShell.lessonAI.open");
+
   return (
     <div>
       <button
@@ -60,7 +62,7 @@ export function AskAIMentorButton({
         className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#7D288F] px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#681f78] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7D288F]"
       >
         <span aria-hidden="true">✦</span>
-        {t("appShell.lessonAI.open")}
+        {mentorLabel}
       </button>
       {error && <p role="alert" className="mt-2 text-xs font-medium text-red-500">{error}</p>}
       {open && (
