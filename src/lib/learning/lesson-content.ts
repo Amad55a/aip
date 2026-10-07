@@ -547,6 +547,9 @@ export function buildLessonMaterial({
   const codeExample = makeCodeExample(courseSlug, lessonTitle);
   const lessonLevel = level?.trim() ? level.trim() : "beginner";
   const hasFirstHtmlAudio = courseSlug === "html" && /what is html/i.test(lessonTitle);
+  const firstHtmlLessonAudioUrl = hasFirstHtmlAudio
+    ? "https://lcfnzzqfxqzvqkqkoare.supabase.co/storage/v1/object/sign/lesson-audio/what-is-html-so.mp3?token=eyJraWQiOiJmZWFlMGIyMC0xMGNkLTQxYmEtOGRjNS0yZWUwN2RmMTViZDIiLCJhbGciOiJIUzUxMiJ9.eyJ1cmwiOiJsZXNzb24tYXVkaW8vd2hhdC1pcy1odG1sLXNvLm1wMyIsInNjb3BlIjoiZG93bmxvYWQiLCJpYXQiOjE3OTEzOTkzNDAsImV4cCI6NDIxOTY3MTM0MH0.SRP-qydZa1Q_ccrCJFLeZer-_xt1VDwYFN_MFzqvCrbnUvQZk0FnKvIwWmwa9KJv-0ijVrmUwGiiuNjsTvyzrA"
+    : null;
   const introduction = description?.trim() ||
     `This lesson introduces ${lessonTitle} in ${moduleTitle}. It is written for a ${lessonLevel.toLowerCase()} learner, so you do not need advanced knowledge to start. We will look at the idea, a simple example, and a short practice task so the concept feels clear and useful.`;
   const explanation = [
@@ -672,8 +675,8 @@ export function buildLessonMaterial({
     tips,
     practice,
     quiz,
-    audioUrl: null,
-    audioPath: hasFirstHtmlAudio ? "html/what-is-html-so.mp3" : null,
+    audioUrl: firstHtmlLessonAudioUrl,
+    audioPath: hasFirstHtmlAudio ? "what-is-html-so.mp3" : null,
     audioLanguage: "so",
   };
 }
