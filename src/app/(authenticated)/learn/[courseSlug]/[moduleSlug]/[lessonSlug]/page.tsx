@@ -350,6 +350,17 @@ export default async function LessonPage({
               notes={localizedLesson.notes}
               commonMistakes={localizedLesson.common_mistakes}
               practice={localizedLesson.practice}
+              mentorContext={{
+                learning_path_id: path.id,
+                learning_path: localizedPath.title,
+                course_id: course.id,
+                course: localizedCourse.title,
+                module_id: currentModule.id,
+                module: currentModule.title,
+                lesson_id: lesson.id,
+                lesson: localizedLesson.title,
+                lesson_level: `${currentModule.level[0].toUpperCase()}${currentModule.level.slice(1)}`,
+              }}
             />
             <LessonQuiz
               lessonId={lesson.id}

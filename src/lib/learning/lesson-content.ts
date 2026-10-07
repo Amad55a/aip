@@ -546,6 +546,7 @@ export function buildLessonMaterial({
   const focused = focusedGuidance(courseSlug, lessonTitle, profile);
   const codeExample = makeCodeExample(courseSlug, lessonTitle);
   const lessonLevel = level?.trim() ? level.trim() : "beginner";
+  const hasFirstHtmlAudio = courseSlug === "html" && /what is html/i.test(lessonTitle);
   const introduction = description?.trim() ||
     `This lesson introduces ${lessonTitle} in ${moduleTitle}. It is written for a ${lessonLevel.toLowerCase()} learner, so you do not need advanced knowledge to start. We will look at the idea, a simple example, and a short practice task so the concept feels clear and useful.`;
   const explanation = [
@@ -670,7 +671,7 @@ export function buildLessonMaterial({
     practice,
     quiz,
     audioUrl: null,
-    audioPath: null,
+    audioPath: hasFirstHtmlAudio ? "html/what-is-html-so.mp3" : null,
     audioLanguage: "so",
   };
 }

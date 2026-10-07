@@ -23,8 +23,18 @@ type MentorContext = {
 
 export function AskAIMentorButton({
   context,
+  codeContext,
 }: {
   context: Omit<MentorContext, "user_id">;
+  codeContext?: {
+    lessonTitle?: string;
+    explanation?: string;
+    code?: string;
+    language?: string;
+    output?: string;
+    preview?: string;
+    mode?: "javascript" | "html-css";
+  };
 }) {
   const { user } = useAuth();
   const { t } = useLanguage();
@@ -55,7 +65,7 @@ export function AskAIMentorButton({
       {error && <p role="alert" className="mt-2 text-xs font-medium text-red-500">{error}</p>}
       {open && (
         <div id="lesson-ai-mentor" className="mt-5 w-full lg:max-w-2xl">
-          <AIMentorChat initialContext={context} onClose={() => setOpen(false)} />
+          <AIMentorChat initialContext={context} onClose={() => setOpen(false)} codeContext={codeContext} />
         </div>
       )}
     </div>

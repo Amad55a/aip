@@ -42,12 +42,24 @@ function validContext(value: unknown): value is MentorContext {
   ].every((key) => typeof context[key] === "string" && context[key].length > 0);
 }
 
+type CodeQuestionContext = {
+  lessonTitle?: string;
+  explanation?: string;
+  code?: string;
+  language?: string;
+  output?: string;
+  preview?: string;
+  mode?: "javascript" | "html-css";
+};
+
 export default function AIMentorChat({
   initialContext,
   onClose,
+  codeContext,
 }: {
   initialContext?: Omit<MentorContext, "user_id">;
   onClose?: () => void;
+  codeContext?: CodeQuestionContext;
 }) {
   const { user } = useAuth();
   const { language, t } = useLanguage();
@@ -63,6 +75,10 @@ export default function AIMentorChat({
   const [input, setInput] = useState("");
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+
+  const promptHint = codeContext
+    ? `Current lesson: ${codeContext.lessonTitle ?? context?.lesson ?? "this lesson"}.\nExplanation: ${codeContext.explanation ?? ""}\nProgramming language: ${codeContext.language ?? "unknown"}\nCode:\n${codeContext.code ?? ""}\nOutput/preview:\n${codeContext.output ?? codeContext.preview ?? ""}`
+    : "";
 
   useEffect(() => {
     if (initialContext) {
@@ -93,7 +109,11 @@ export default function AIMentorChat({
     const question = input.trim();
     if (!question || pending || !context || usageLoading || usageUnavailable || usage?.remaining === 0) return;
 
-    const outgoing = [...messages, { role: "user" as const, content: question }].slice(-12);
+    const enrichedQuestion = promptHint
+      ? `${question}\n\nContext for this code example:\n${promptHint}`
+      : question;
+
+    const outgoing = [...messages, { role: "user" as const, content: enrichedQuestion }].slice(-12);
     while (outgoing[0]?.role !== "user") outgoing.shift();
     setMessages(outgoing);
     setInput("");

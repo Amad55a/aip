@@ -8,6 +8,8 @@ import type { LessonStudyMaterial } from "@/lib/learning/lesson-content";
 import type { Lesson } from "@/lib/supabase/database.types";
 import type { ReactNode } from "react";
 import InteractiveCodePractice from "@/components/learn/InteractiveCodePractice";
+import SomaliLessonAudio from "@/components/learn/SomaliLessonAudio";
+import { AskAIMentorButton } from "@/components/learn/LessonActions";
 
 type LessonFlowPhase = {
   id: "learn" | "see" | "practice";
@@ -30,6 +32,7 @@ export default function LessonStudyGuide({
   notes,
   commonMistakes,
   practice,
+  mentorContext,
 }: {
   material: LessonStudyMaterial;
   publishedNote: string;
@@ -38,6 +41,17 @@ export default function LessonStudyGuide({
   notes: Lesson["notes"];
   commonMistakes: Lesson["common_mistakes"];
   practice: Lesson["practice"];
+  mentorContext?: {
+    learning_path_id: string;
+    learning_path: string;
+    course_id: string;
+    course: string;
+    module_id: string;
+    module: string;
+    lesson_id: string;
+    lesson: string;
+    lesson_level: string;
+  };
 }) {
   const { t } = useLanguage();
   const displayedCodeExamples = [
@@ -84,6 +98,24 @@ export default function LessonStudyGuide({
         )
         : null;
 
+  const codeContext: {
+    lessonTitle?: string;
+    explanation?: string;
+    code?: string;
+    language?: string;
+    output?: string;
+    preview?: string;
+    mode?: "javascript" | "html-css";
+  } = {
+    lessonTitle: mentorContext?.lesson || material.introduction || t("appShell.lessonContent.codeExample"),
+    explanation: material.explanation,
+    code: material.codeExample.code,
+    language: material.codeExample.language,
+    output: "",
+    preview: "",
+    mode: material.codeExample.language === "javascript" ? "javascript" : "html-css",
+  };
+
   return (
     <article className="space-y-8 py-8 text-[var(--fg)]">
       {publishedNote.trim() && (
@@ -126,7 +158,32 @@ export default function LessonStudyGuide({
 
       {interactivePractice ? (
         <LessonSection title={t("appShell.lessonContent.codeExample")}>
-          {interactivePractice}
+          <div className="space-y-3">
+            {material.audioPath || material.audioUrl ? (
+              <SomaliLessonAudio
+                audioUrl={material.audioUrl}
+                audioPath={material.audioPath}
+                title={t("content.listenInSomali")}
+              />
+            ) : null}
+            {interactivePractice}
+            <div className="flex justify-end">
+              <AskAIMentorButton
+                context={mentorContext ?? {
+                  learning_path_id: "",
+                  learning_path: "",
+                  course_id: "",
+                  course: "",
+                  module_id: "",
+                  module: "",
+                  lesson_id: "",
+                  lesson: material.introduction || t("appShell.lessonContent.codeExample"),
+                  lesson_level: "beginner",
+                }}
+                codeContext={codeContext}
+              />
+            </div>
+          </div>
         </LessonSection>
       ) : null}
 
