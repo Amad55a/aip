@@ -6,9 +6,7 @@ import LessonNavigation from "@/components/learn/LessonNavigation";
 import LessonPager from "@/components/learn/LessonPager";
 import LessonProgress from "@/components/learn/LessonProgress";
 import LessonStudyGuide from "@/components/learn/LessonStudyGuide";
-import RichContent from "@/components/content/RichContent";
 import {
-  AskAIMentorButton,
   CompleteLessonButton,
 } from "@/components/learn/LessonActions";
 import {
@@ -135,10 +133,10 @@ export default async function LessonPage({
     mistakes: material.mistakes,
     tips: material.tips,
     practice: material.practice,
-    audioUrl: material.audioUrl,
-    audioPath: material.audioPath,
-    audioLanguage: material.audioLanguage,
     ...localizedContent?.study_material,
+    audioUrl: material.audioUrl ?? localizedContent?.study_material?.audioUrl,
+    audioPath: material.audioPath ?? localizedContent?.study_material?.audioPath,
+    audioLanguage: material.audioLanguage ?? localizedContent?.study_material?.audioLanguage,
   };
   const availableQuiz = resolveLessonQuiz(localizedLesson.quiz_questions, material);
 
@@ -313,28 +311,9 @@ export default async function LessonPage({
                   </span>
                 )}
               </div>
-              <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-[var(--fg)] sm:text-4xl">
+              <h1 className="mt-4 text-2xl font-semibold tracking-tight text-[var(--fg)] sm:text-3xl">
                 {localizedLesson.title}
               </h1>
-              <RichContent
-                content={studyMaterial.introduction}
-                className="mt-3 text-[var(--fg-muted)] [&_p]:text-[var(--fg-muted)]"
-              />
-              <div className="mt-6 flex flex-wrap items-center gap-3">
-                <AskAIMentorButton
-                  context={{
-                    learning_path_id: path.id,
-                    learning_path: localizedPath.title,
-                    course_id: course.id,
-                    course: localizedCourse.title,
-                    module_id: currentModule.id,
-                    module: currentModule.title,
-                    lesson_id: lesson.id,
-                    lesson_level: `${currentModule.level[0].toUpperCase()}${currentModule.level.slice(1)}`,
-                    lesson: localizedLesson.title,
-                  }}
-                />
-              </div>
               <LessonProgress
                 status={lessonStatus}
                 completedLessons={completedLessons}

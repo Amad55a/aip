@@ -51,6 +51,20 @@ function getCodeText(node: ReactNode): string {
   return "";
 }
 
+function removeMarkdownBold(content: string) {
+  return content
+    .split(/(```[\s\S]*?```|`[^`\n]*`)/g)
+    .map((part, index) =>
+      index % 2 === 1
+        ? part
+        : part
+            .replace(/\*\*(?=\S)([\s\S]*?\S)\*\*/g, "$1")
+            .replace(/(?<![\w])__(?=\S)([\s\S]*?\S)__(?![\w])/g, "$1")
+            .replace(/(?<!\*)\*\*(?!\*)|(?<![\w_])__(?![\w_])/g, "")
+    )
+    .join("");
+}
+
 function createComponents(t: (key: string) => string): Components {
 return {
   h1: ({ children }) => <h2 className="mb-4 mt-8 text-2xl font-extrabold tracking-tight text-[var(--fg)]">{children}</h2>,
@@ -61,7 +75,7 @@ return {
   ul: ({ children }) => <ul className="my-4 list-disc space-y-2 ps-6 text-sm leading-7 text-[var(--fg)] sm:text-base">{children}</ul>,
   ol: ({ children }) => <ol className="my-4 list-decimal space-y-2 ps-6 text-sm leading-7 text-[var(--fg)] sm:text-base">{children}</ol>,
   li: ({ children }) => <li className="ps-1 marker:text-[#7D288F]">{children}</li>,
-  strong: ({ children }) => <strong className="font-bold text-[var(--fg)]">{children}</strong>,
+  strong: ({ children }) => <span className="font-normal text-[var(--fg)]">{children}</span>,
   em: ({ children }) => <em className="italic">{children}</em>,
   a: ({ href, children }) => (
     <a href={href} target={href?.startsWith("http") ? "_blank" : undefined} rel={href?.startsWith("http") ? "noreferrer" : undefined} className="font-medium text-[#7D288F] underline decoration-[#7D288F]/40 underline-offset-2 hover:decoration-[#7D288F] dark:text-purple-300">
@@ -125,7 +139,7 @@ export default function RichContent({
   return (
     <div className={`min-w-0 break-words [&>p:first-child]:mt-0 ${className}`}>
       <ReactMarkdown remarkPlugins={[remarkGfm]} components={components} skipHtml>
-        {content}
+        {removeMarkdownBold(content)}
       </ReactMarkdown>
     </div>
   );

@@ -41,10 +41,7 @@ export default function LessonStudyGuide({
   };
 }) {
   const { t } = useLanguage();
-  const displayedCodeExamples = [
-    material.codeExample,
-    ...codeExamples.filter((example) => example.code !== material.codeExample.code),
-  ];
+  const displayedCodeExamples = codeExamples.filter((example) => example.code !== material.codeExample.code);
   const items = [
     { title: t("appShell.lessonContent.uses"), values: material.useCases },
     { title: t("appShell.lessonContent.mistakes"), values: [...material.mistakes, ...commonMistakes] },
@@ -96,7 +93,7 @@ export default function LessonStudyGuide({
   const shortExplanation = material.codeExample.explanation || "This code shows the idea in a real example.";
 
   return (
-    <article className="space-y-7 py-8 text-[var(--fg)]">
+    <article className="space-y-6 py-6 text-[var(--fg)]">
       {publishedNote.trim() && (
         <LessonSection title={t("appShell.lessonContent.publishedNote")}>
           <RichContent content={publishedNote} />
@@ -104,8 +101,8 @@ export default function LessonStudyGuide({
       )}
 
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold tracking-tight text-[var(--fg)]">Define</h2>
-        <p className="max-w-2xl text-base leading-7 text-[var(--fg-muted)]">{shortIntro}</p>
+        <h2 className="text-lg font-semibold tracking-tight text-[var(--fg)]">Define</h2>
+        <RichContent content={shortIntro} className="max-w-2xl [&_p]:my-0 [&_p]:text-[var(--fg-muted)]" />
 
         {material.audioPath || material.audioUrl ? (
           <SomaliLessonAudio
@@ -117,8 +114,8 @@ export default function LessonStudyGuide({
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold tracking-tight text-[var(--fg)]">Example</h2>
-        <p className="max-w-2xl text-base leading-7 text-[var(--fg-muted)]">{shortExample}</p>
+        <h2 className="text-lg font-semibold tracking-tight text-[var(--fg)]">Example</h2>
+        <RichContent content={shortExample} className="max-w-2xl [&_p]:my-0 [&_p]:text-[var(--fg-muted)]" />
         {interactivePractice ? (
           <div className="space-y-3">
             {interactivePractice}
@@ -143,19 +140,19 @@ export default function LessonStudyGuide({
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-xl font-semibold tracking-tight text-[var(--fg)]">What happened?</h2>
-        <p className="max-w-2xl text-base leading-7 text-[var(--fg-muted)]">{shortExplanation}</p>
+        <h2 className="text-lg font-semibold tracking-tight text-[var(--fg)]">What happened?</h2>
+        <RichContent content={shortExplanation} className="max-w-2xl [&_p]:my-0 [&_p]:text-[var(--fg-muted)]" />
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-xl font-semibold tracking-tight text-[var(--fg)]">Practice</h2>
-        <p className="max-w-2xl text-base leading-7 text-[var(--fg-muted)]">{shortPractice}</p>
+        <h2 className="text-lg font-semibold tracking-tight text-[var(--fg)]">Practice</h2>
+        <RichContent content={shortPractice} className="max-w-2xl [&_p]:my-0 [&_p]:text-[var(--fg-muted)]" />
       </section>
 
       {examples.length > 0 && (
         <LessonSection title={t("appShell.lessonContent.example")}>
           {examples.map((example, index) => (
-            <div key={`${example.title}-${index}`} className="mt-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 sm:p-5">
+            <div key={`${example.title}-${index}`} className="mt-3 border-s-2 border-[var(--border)] ps-4">
               <RichContent content={`### ${example.title}\n\n${example.body}`} />
             </div>
           ))}
@@ -166,7 +163,18 @@ export default function LessonStudyGuide({
         <LessonSection title={t("appShell.lessonContent.codeExample")}>
           {displayedCodeExamples.map((example, index) => (
             <div key={`${example.title}-${index}`} className="space-y-3">
-              <CodeBlock code={example.code} language={example.language} filename={example.title} />
+              {example.language === "javascript" ? (
+                <InteractiveCodePractice title={example.title} mode="javascript" initialCode={example.code} />
+              ) : example.language === "html" || example.language === "css" ? (
+                <InteractiveCodePractice
+                  title={example.title}
+                  mode="html-css"
+                  initialHtml={example.language === "html" ? example.code : "<h1>Hello</h1>\n<p>Welcome!</p>"}
+                  initialCss={example.language === "css" ? example.code : ""}
+                />
+              ) : (
+                <CodeBlock code={example.code} language={example.language} filename={example.title} />
+              )}
               <RichContent
                 content={
                   "explanation" in example && typeof example.explanation === "string"
@@ -204,7 +212,7 @@ function LessonSection({
 }) {
   return (
     <section aria-label={title}>
-      <h2 className="mb-4 text-xl font-semibold tracking-tight text-[var(--fg)]">{title}</h2>
+      <h2 className="mb-3 text-lg font-semibold tracking-tight text-[var(--fg)]">{title}</h2>
       {children}
     </section>
   );
