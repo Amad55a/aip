@@ -10,6 +10,19 @@ import type { ReactNode } from "react";
 import InteractiveCodePractice from "@/components/learn/InteractiveCodePractice";
 import SomaliLessonAudio from "@/components/learn/SomaliLessonAudio";
 
+type LessonFlowPhase = {
+  id: "learn" | "see" | "practice";
+  title: string;
+  summary: string;
+  content?: string;
+  code?: string;
+  language?: string;
+  tasks?: string[];
+  audio_url?: string | null;
+  audio_path?: string | null;
+  audio_language?: "so" | null;
+};
+
 export default function LessonStudyGuide({
   material,
   publishedNote,
@@ -38,13 +51,20 @@ export default function LessonStudyGuide({
     { title: t("appShell.lessonContent.tips"), values: [...material.tips, ...notes] },
     { title: t("appShell.lessonContent.practice"), values: [...material.practice, ...practice] },
   ];
-  const phaseCards = material.phaseSections?.length
-    ? material.phaseSections
-    : [
-        { id: "learn", title: "Phase 1 · Learn", summary: "Understand the idea", content: material.explanation },
-        { id: "see", title: "Phase 2 · See", summary: "Look at a simple example", content: material.example, code: material.codeExample.code, language: material.codeExample.language },
-        { id: "practice", title: "Phase 3 · Practice", summary: "Try a short task", content: material.practice[0] ?? material.example, tasks: material.practice },
-      ];
+  const fallbackPhaseSections: LessonFlowPhase[] = [
+    { id: "learn", title: "Learn", summary: "Understand the idea", content: material.explanation },
+    { id: "see", title: "See", summary: "Look at a simple example", content: material.example, code: material.codeExample.code, language: material.codeExample.language },
+    { id: "practice", title: "Practice", summary: "Try a short task", content: material.practice[0] ?? material.example, tasks: material.practice },
+  ];
+  const phaseLabels: LessonFlowPhase[] = (material.phaseSections?.length ? material.phaseSections : fallbackPhaseSections).map((phase) => ({
+    ...phase,
+    id: phase.id as "learn" | "see" | "practice",
+    title: phase.title.replace(/\s*·\s*.*$/, "").trim() || phase.title,
+    content: phase.content ?? "",
+    code: phase.code,
+    language: phase.language,
+    tasks: phase.tasks,
+  }));
   const interactivePractice =
     material.codeExample.language === "javascript"
       ? (
@@ -81,36 +101,36 @@ export default function LessonStudyGuide({
         </LessonSection>
       )}
 
-      <section className="grid gap-4 md:grid-cols-3">
-        {phaseCards.map((phase) => (
-          <div
-            key={phase.id}
-            className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4 shadow-sm sm:p-5"
-          >
-            <div className="mb-3 inline-flex rounded-full bg-[var(--brand-soft)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#7D288F] dark:text-purple-300">
-              {phase.title}
+      <section className="space-y-6">
+        <div className="border-b border-[var(--border)] pb-2">
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--fg-muted)]">Lesson flow</p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          {phaseLabels.map((phase) => (
+            <div key={phase.id} className="border-l border-[var(--border)] pl-4 md:border-l-0 md:border-t md:pt-4 md:pl-0">
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--fg-muted)]">{phase.title}</p>
+              <h3 className="mt-2 text-lg font-bold text-[var(--fg)]">{phase.summary}</h3>
+              <div className="mt-3 space-y-3 text-sm leading-6 text-[var(--fg-muted)]">
+                {phase.content ? <RichContent content={phase.content} className="[&_p]:mb-0 [&_p]:text-[var(--fg-muted)]" /> : null}
+                {phase.code ? (
+                  <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--bg)]">
+                    <CodeBlock code={phase.code} language={phase.language ?? "javascript"} filename={phase.title} />
+                  </div>
+                ) : null}
+                {phase.tasks?.length ? (
+                  <ul className="space-y-2">
+                    {phase.tasks.map((task, index) => (
+                      <li key={`${phase.id}-task-${index}`} className="flex gap-2">
+                        <span className="mt-1 text-[#7D288F] dark:text-purple-300">•</span>
+                        <RichContent content={task} className="min-w-0 flex-1 [&_p]:mb-0 [&_p]:text-[var(--fg-muted)]" />
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </div>
             </div>
-            <h3 className="text-lg font-bold text-[var(--fg)]">{phase.summary}</h3>
-            <div className="mt-3 space-y-3 text-sm leading-6 text-[var(--fg-muted)]">
-              <RichContent content={phase.content} className="[&_p]:mb-0 [&_p]:text-[var(--fg-muted)]" />
-              {phase.code ? (
-                <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--bg)]">
-                  <CodeBlock code={phase.code} language={phase.language ?? "javascript"} filename={phase.title} />
-                </div>
-              ) : null}
-              {phase.tasks?.length ? (
-                <ul className="space-y-2">
-                  {phase.tasks.map((task, index) => (
-                    <li key={`${phase.id}-task-${index}`} className="flex gap-2">
-                      <span className="mt-1 text-[#7D288F] dark:text-purple-300">•</span>
-                      <RichContent content={task} className="min-w-0 flex-1 [&_p]:mb-0 [&_p]:text-[var(--fg-muted)]" />
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </section>
 
       {interactivePractice ? (
