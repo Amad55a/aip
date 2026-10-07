@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLanguage } from "@/hooks/useLanguage";
 
 export type SomaliLessonAudioProps = {
@@ -9,31 +9,55 @@ export type SomaliLessonAudioProps = {
   title?: string;
 };
 
-function resolveAudioUrl(audioUrl?: string | null, audioPath?: string | null) {
-  if (audioUrl) return audioUrl;
-  if (!audioPath) return null;
+function buildCandidateUrls(audioUrl?: string | null, audioPath?: string | null) {
+  if (audioUrl) return [audioUrl];
+  if (!audioPath) return [];
 
   const trimmed = audioPath.trim();
-  if (/^https?:\/\//i.test(trimmed)) return trimmed;
-  if (trimmed.startsWith("/")) return trimmed;
+  if (!trimmed) return [];
+
+  const candidates = new Set<string>();
+  const absolute = /^https?:\/\//i.test(trimmed);
+  const isRootRelative = trimmed.startsWith("/");
+
+  if (absolute || isRootRelative) {
+    candidates.add(trimmed);
+    return Array.from(candidates);
+  }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   if (supabaseUrl) {
-    return `${supabaseUrl.replace(/\/$/, "")}/storage/v1/object/public/lesson-audio/${trimmed.replace(/^\/+/, "")}`;
+    const base = `${supabaseUrl.replace(/\/$/, "")}/storage/v1/object/public/lesson-audio`;
+    const normalized = trimmed.replace(/^\/+/, "");
+    candidates.add(`${base}/${normalized}`);
+
+    const fileName = normalized.split("/").pop();
+    if (fileName && fileName !== normalized) {
+      candidates.add(`${base}/${fileName}`);
+    }
   }
 
-  return `/${trimmed.replace(/^\/+/, "")}`;
+  const fallbackStatic = `/${trimmed.replace(/^\/+/, "")}`;
+  candidates.add(fallbackStatic);
+
+  return Array.from(candidates);
 }
 
 export default function SomaliLessonAudio({ audioUrl, audioPath, title }: SomaliLessonAudioProps) {
   const { t } = useLanguage();
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [hasError, setHasError] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  const resolvedUrl = useMemo(() => resolveAudioUrl(audioUrl, audioPath), [audioUrl, audioPath]);
+  const candidates = useMemo(() => buildCandidateUrls(audioUrl, audioPath), [audioUrl, audioPath]);
 
-  if (!resolvedUrl) {
+  useEffect(() => {
+    if (!audioRef.current || !candidates.length) return;
+    audioRef.current.src = candidates[currentIndex];
+    audioRef.current.load();
+  }, [candidates, currentIndex]);
+
+  if (!candidates.length) {
     return null;
   }
 
@@ -42,11 +66,16 @@ export default function SomaliLessonAudio({ audioUrl, audioPath, title }: Somali
 
     if (audioRef.current.paused) {
       try {
+        audioRef.current.src = candidates[currentIndex];
+        audioRef.current.load();
         await audioRef.current.play();
         setIsPlaying(true);
-        setHasError(false);
       } catch {
-        setHasError(true);
+        if (currentIndex < candidates.length - 1) {
+          setCurrentIndex((value) => value + 1);
+          return;
+        }
+        setIsPlaying(false);
       }
       return;
     }
@@ -54,10 +83,6 @@ export default function SomaliLessonAudio({ audioUrl, audioPath, title }: Somali
     audioRef.current.pause();
     setIsPlaying(false);
   };
-
-  if (hasError) {
-    return null;
-  }
 
   return (
     <div className="flex items-center gap-2">
@@ -74,11 +99,17 @@ export default function SomaliLessonAudio({ audioUrl, audioPath, title }: Somali
       <audio
         ref={audioRef}
         preload="metadata"
-        src={resolvedUrl}
+        src={candidates[currentIndex]}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
         onEnded={() => setIsPlaying(false)}
-        onError={() => setHasError(true)}
+        onError={() => {
+          if (currentIndex < candidates.length - 1) {
+            setCurrentIndex((value) => value + 1);
+            return;
+          }
+          setIsPlaying(false);
+        }}
       />
     </div>
   );
