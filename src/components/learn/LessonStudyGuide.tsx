@@ -8,7 +8,6 @@ import type { LessonStudyMaterial } from "@/lib/learning/lesson-content";
 import type { Lesson } from "@/lib/supabase/database.types";
 import type { ReactNode } from "react";
 import InteractiveCodePractice from "@/components/learn/InteractiveCodePractice";
-import SomaliLessonAudio from "@/components/learn/SomaliLessonAudio";
 
 type LessonFlowPhase = {
   id: "learn" | "see" | "practice";
@@ -87,14 +86,6 @@ export default function LessonStudyGuide({
 
   return (
     <article className="space-y-8 py-8 text-[var(--fg)]">
-      {material.audioUrl || material.audioPath ? (
-        <SomaliLessonAudio
-          audioUrl={material.audioUrl}
-          audioPath={material.audioPath}
-          title={t("content.listenInSomali")}
-        />
-      ) : null}
-
       {publishedNote.trim() && (
         <LessonSection title={t("appShell.lessonContent.publishedNote")}>
           <RichContent content={publishedNote} />
@@ -225,7 +216,7 @@ function LessonSection({
 }) {
   return (
     <section aria-label={title}>
-      <h2 className="mb-4 text-xl font-extrabold tracking-tight text-[var(--fg)]">{title}</h2>
+      <h2 className="mb-4 text-xl font-semibold tracking-tight text-[var(--fg)]">{title}</h2>
       {children}
     </section>
   );

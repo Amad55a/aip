@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import LessonQuiz from "@/components/learn/LessonQuiz";
 import ContentLanguageFallbackNotice from "@/components/app/ContentLanguageFallbackNotice";
 import LessonNavigation from "@/components/learn/LessonNavigation";
@@ -165,12 +165,6 @@ export default async function LessonPage({
       .filter((summary) => summary.module_id === item.id)
       .map((summary) => ({ ...summary, module: item }))
   );
-  const currentIndex = orderedLessons.findIndex((item) => item.id === lesson.id);
-  const previousLesson = currentIndex > 0 ? orderedLessons[currentIndex - 1] : null;
-  const nextLesson =
-    currentIndex >= 0 && currentIndex < orderedLessons.length - 1
-      ? orderedLessons[currentIndex + 1]
-      : null;
 
   const accessedAt = new Date().toISOString();
   const { error: createProgressError } = await supabase.from("lesson_progress").upsert(
@@ -226,6 +220,27 @@ export default async function LessonPage({
   }
   const currentProgress = progressRecords.find((item) => item.lesson_id === lesson.id);
   const lessonStatus = currentProgress?.status ?? "not_started";
+  const progressByLesson = new Map(progressRecords.map((record) => [record.lesson_id, record.status]));
+  let unlockedIndex = 0;
+  for (let index = 0; index < orderedLessons.length; index += 1) {
+    const previousLessonCompleted = index === 0 || progressByLesson.get(orderedLessons[index - 1].id) === "completed";
+    if (!previousLessonCompleted) {
+      break;
+    }
+    unlockedIndex = index;
+  }
+  const currentIndex = orderedLessons.findIndex((item) => item.id === lesson.id);
+  const previousLesson = currentIndex > 0 ? orderedLessons[currentIndex - 1] : null;
+  const nextLesson = currentIndex >= 0 && currentIndex < orderedLessons.length - 1 && lessonStatus === "completed"
+    ? orderedLessons[currentIndex + 1]
+    : null;
+  if (currentIndex > unlockedIndex) {
+    const fallbackLesson = orderedLessons[unlockedIndex] ?? orderedLessons[orderedLessons.length - 1];
+    const fallbackHref = fallbackLesson
+      ? `/learn/${course.slug}/${fallbackLesson.module.slug}/${fallbackLesson.slug}`
+      : `/learn/${course.slug}`;
+    redirect(fallbackHref);
+  }
   const navigationModules = localizedModules.map((moduleItem) => ({
     id: moduleItem.id,
     slug: moduleItem.slug,
