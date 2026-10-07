@@ -30,15 +30,44 @@ export type LessonStudyMaterialTranslation = {
     code: string;
     explanation: string;
   };
+  terminology?: {
+    term: string;
+    definition: string;
+    example?: string;
+  }[];
+  phaseSections?: {
+    id: "learn" | "see" | "practice";
+    title: string;
+    summary: string;
+    content: string;
+    code?: string;
+    language?: string;
+    tasks?: string[];
+    audio_url?: string | null;
+    audio_path?: string | null;
+    audio_language?: "so" | null;
+  }[];
   useCases: string[];
   mistakes: string[];
   tips: string[];
   practice: string[];
+  audio_url?: string | null;
+  audio_path?: string | null;
+  audio_language?: "so" | null;
+  audioUrl?: string | null;
+  audioPath?: string | null;
+  audioLanguage?: "so" | null;
 };
 
 export type LessonContentTranslation = CurriculumTranslation & {
   content?: string;
   explanation?: string;
+  audio_url?: string | null;
+  audio_path?: string | null;
+  audio_language?: "so" | null;
+  audioUrl?: string | null;
+  audioPath?: string | null;
+  audioLanguage?: "so" | null;
   examples?: { title: string; body: string }[];
   code_examples?: {
     title: string;
@@ -116,6 +145,7 @@ export type Lesson = {
   common_mistakes: string[];
   practice: string[];
   quiz_questions: LessonQuizQuestion[];
+  audio_url?: string | null;
   translations: Partial<Record<"en" | "so" | "ar", LessonContentTranslation>>;
   lesson_type: "lesson" | "coding" | "quiz" | "project";
   order_index: number;

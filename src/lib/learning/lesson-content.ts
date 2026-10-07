@@ -7,16 +7,40 @@ export type LessonCodeExample = {
   explanation: string;
 };
 
+export type LessonTerm = {
+  term: string;
+  definition: string;
+  example?: string;
+};
+
+export type LessonPhaseSection = {
+  id: "learn" | "see" | "practice";
+  title: string;
+  summary: string;
+  content: string;
+  code?: string;
+  language?: string;
+  tasks?: string[];
+  audio_url?: string | null;
+  audio_path?: string | null;
+  audio_language?: "so" | null;
+};
+
 export type LessonMaterial = {
   introduction: string;
   explanation: string;
   example: string;
   codeExample: LessonCodeExample;
+  terminology: LessonTerm[];
+  phaseSections: LessonPhaseSection[];
   useCases: string[];
   mistakes: string[];
   tips: string[];
   practice: string[];
   quiz: LessonQuizQuestion[];
+  audioUrl?: string | null;
+  audioPath?: string | null;
+  audioLanguage?: "so" | null;
 };
 
 export type LessonStudyMaterial = Omit<LessonMaterial, "quiz">;
@@ -521,19 +545,40 @@ export function buildLessonMaterial({
   const profile = profiles[courseSlug] ?? { ...missingProfile, name: courseTitle };
   const focused = focusedGuidance(courseSlug, lessonTitle, profile);
   const codeExample = makeCodeExample(courseSlug, lessonTitle);
+  const lessonLevel = level?.trim() ? level.trim() : "beginner";
   const introduction = description?.trim() ||
-    `Study ${lessonTitle} as part of ${moduleTitle} in ${courseTitle}. This ${level} lesson builds on the course foundations and connects the concept to practical engineering decisions.`;
+    `This lesson introduces ${lessonTitle} in ${moduleTitle}. It is written for a ${lessonLevel.toLowerCase()} learner, so you do not need advanced knowledge to start. We will look at the idea, a simple example, and a short practice task so the concept feels clear and useful.`;
   const explanation = [
-    `## The idea`,
-    `${lessonTitle} is best understood in the context of ${profile.name}. ${profile.foundation}`,
-    `## A reliable way to apply it`,
+    "## What is this?",
+    `${lessonTitle} is a practical concept in ${profile.name}. ${profile.foundation}`,
+    "## Why does it matter?",
     `${focused} ${profile.workflow}`,
-    `## Read the example`,
-    `${codeExample.explanation} Notice the boundary, the intended behavior, and the verification point. Adapt the example to the version and constraints of your own project.`,
-    `## Check your understanding`,
-    `Explain what changes when you apply ${lessonTitle}, what assumptions the example makes, and how you would verify it. If your explanation cannot identify an observable result, make the example smaller and test it again.`,
+    "## How to think about it",
+    "Start with the problem, then check the input, the behavior, and the result. If you can explain what changes and how to verify it, you understand the idea.",
   ].join("\n\n");
-  const example = `**Scenario:** A team is working on “${lessonTitle}” in a real ${profile.name} codebase. ${focused} The code example shows one small, reviewable implementation. Before using it, identify its input, expected result, and failure case.`;
+  const example = `**Scenario:** A team is working on “${lessonTitle}” in a real ${profile.name} project. ${focused} The example below shows one small, readable pattern. Before copying it, identify the input, the result, and the case that could fail.`;
+  const terminology: LessonTerm[] = [
+    {
+      term: "Concept",
+      definition: `${lessonTitle} is the main idea in this lesson. It describes how a part of ${profile.name} works in practice.`,
+      example: "You learn the idea first, then apply it to a small example.",
+    },
+    {
+      term: "Input",
+      definition: "The value or information that enters a system or function.",
+      example: "A user name, a form value, or an API response.",
+    },
+    {
+      term: "Output",
+      definition: "The result or visible effect that comes after the code runs.",
+      example: "A rendered page, a database row, or a message in the console.",
+    },
+    {
+      term: "Verification",
+      definition: "Checking whether the result matches the intended behavior.",
+      example: "Test the code with a simple real case before you trust the result.",
+    },
+  ];
   const useCases = profile.useCases.map((useCase) => `${useCase}. For this lesson, decide which part of “${lessonTitle}” supports that outcome and how you would verify it.`);
   const mistakes = [
     ...profile.mistakes,
@@ -544,9 +589,35 @@ export function buildLessonMaterial({
     `When practicing “${lessonTitle},” change one variable at a time and explain the observed result.`,
   ];
   const practice = [
-    `Build a small feature that demonstrates “${lessonTitle}” in a project related to ${moduleTitle}. Write down the expected behavior before implementation.`,
-    `Extend the example with one realistic edge case. Explain how the implementation responds and what feedback a user or caller receives.`,
-    `Review your work against the common mistakes above. Add a short test, browser check, query-plan check, or deployment check appropriate to this topic.`,
+    `Create a tiny example that shows “${lessonTitle}” in a project related to ${moduleTitle}. Write down the expected result before you code it.`,
+    `Add one realistic edge case. Explain what your code should do when the input is unusual or missing.`,
+    `Review your work against the common mistakes above and check the result in a way that matches the topic.`,
+  ];
+  const phaseSections: LessonPhaseSection[] = [
+    {
+      id: "learn",
+      title: "Phase 1 · Learn",
+      summary: "Understand the idea",
+      content: `In this phase, focus on the purpose of ${lessonTitle}. ${profile.foundation} You are learning the problem the concept solves before looking at the exact code.`,
+      audio_url: null,
+    },
+    {
+      id: "see",
+      title: "Phase 2 · See",
+      summary: "Read a working example",
+      content: `${codeExample.explanation} Notice the input, the result, and the boundary where the behavior changes.`,
+      code: codeExample.code,
+      language: codeExample.language,
+      audio_url: null,
+    },
+    {
+      id: "practice",
+      title: "Phase 3 · Practice",
+      summary: "Try it yourself",
+      content: `Practice with a small task, then explain what changed and how you checked the result. ${profile.workflow}`,
+      tasks: practice,
+      audio_url: null,
+    },
   ];
   const correctAnswer = profile.principle;
   const quiz: LessonQuizQuestion[] = [
@@ -591,11 +662,16 @@ export function buildLessonMaterial({
     explanation,
     example,
     codeExample,
+    terminology,
+    phaseSections,
     useCases,
     mistakes,
     tips,
     practice,
     quiz,
+    audioUrl: null,
+    audioPath: null,
+    audioLanguage: "so",
   };
 }
 

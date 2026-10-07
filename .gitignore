@@ -20,6 +20,9 @@
 # production
 /build
 
+# local teacher recordings (do not commit real Somali lesson audio)
+/techpath-ai-audio/
+
 # misc
 .DS_Store
 *.pem

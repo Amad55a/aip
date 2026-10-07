@@ -7,6 +7,8 @@ import { explainCodeExample } from "@/lib/learning/code-explanations";
 import type { LessonStudyMaterial } from "@/lib/learning/lesson-content";
 import type { Lesson } from "@/lib/supabase/database.types";
 import type { ReactNode } from "react";
+import InteractiveCodePractice from "@/components/learn/InteractiveCodePractice";
+import SomaliLessonAudio from "@/components/learn/SomaliLessonAudio";
 
 export default function LessonStudyGuide({
   material,
@@ -36,17 +38,101 @@ export default function LessonStudyGuide({
     { title: t("appShell.lessonContent.tips"), values: [...material.tips, ...notes] },
     { title: t("appShell.lessonContent.practice"), values: [...material.practice, ...practice] },
   ];
+  const phaseCards = material.phaseSections?.length
+    ? material.phaseSections
+    : [
+        { id: "learn", title: "Phase 1 · Learn", summary: "Understand the idea", content: material.explanation },
+        { id: "see", title: "Phase 2 · See", summary: "Look at a simple example", content: material.example, code: material.codeExample.code, language: material.codeExample.language },
+        { id: "practice", title: "Phase 3 · Practice", summary: "Try a short task", content: material.practice[0] ?? material.example, tasks: material.practice },
+      ];
+  const interactivePractice =
+    material.codeExample.language === "javascript"
+      ? (
+        <InteractiveCodePractice
+          title={t("appShell.lessonContent.codeExample")}
+          mode="javascript"
+          initialCode={material.codeExample.code}
+        />
+      )
+      : material.codeExample.language === "html" || material.codeExample.language === "css"
+        ? (
+          <InteractiveCodePractice
+            title={t("appShell.lessonContent.codeExample")}
+            mode="html-css"
+            initialHtml={material.codeExample.language === "html" ? material.codeExample.code : "<h1>Hello</h1>\n<p>Welcome!</p>"}
+            initialCss={material.codeExample.language === "css" ? material.codeExample.code : "h1 {\n  color: purple;\n}\np {\n  color: #333;\n}"}
+          />
+        )
+        : null;
 
   return (
-    <article className="space-y-9 py-8">
+    <article className="space-y-8 py-8 text-[var(--fg)]">
+      {material.audioUrl || material.audioPath ? (
+        <SomaliLessonAudio
+          audioUrl={material.audioUrl}
+          audioPath={material.audioPath}
+          title={t("content.listenInSomali")}
+        />
+      ) : null}
+
       {publishedNote.trim() && (
         <LessonSection title={t("appShell.lessonContent.publishedNote")}>
           <RichContent content={publishedNote} />
         </LessonSection>
       )}
 
+      <section className="grid gap-4 md:grid-cols-3">
+        {phaseCards.map((phase) => (
+          <div
+            key={phase.id}
+            className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4 shadow-sm sm:p-5"
+          >
+            <div className="mb-3 inline-flex rounded-full bg-[var(--brand-soft)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#7D288F] dark:text-purple-300">
+              {phase.title}
+            </div>
+            <h3 className="text-lg font-bold text-[var(--fg)]">{phase.summary}</h3>
+            <div className="mt-3 space-y-3 text-sm leading-6 text-[var(--fg-muted)]">
+              <RichContent content={phase.content} className="[&_p]:mb-0 [&_p]:text-[var(--fg-muted)]" />
+              {phase.code ? (
+                <div className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--bg)]">
+                  <CodeBlock code={phase.code} language={phase.language ?? "javascript"} filename={phase.title} />
+                </div>
+              ) : null}
+              {phase.tasks?.length ? (
+                <ul className="space-y-2">
+                  {phase.tasks.map((task, index) => (
+                    <li key={`${phase.id}-task-${index}`} className="flex gap-2">
+                      <span className="mt-1 text-[#7D288F] dark:text-purple-300">•</span>
+                      <RichContent content={task} className="min-w-0 flex-1 [&_p]:mb-0 [&_p]:text-[var(--fg-muted)]" />
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
+          </div>
+        ))}
+      </section>
+
+      {interactivePractice ? (
+        <LessonSection title={t("appShell.lessonContent.codeExample")}>
+          {interactivePractice}
+        </LessonSection>
+      ) : null}
+
       <LessonSection title={t("appShell.lessonContent.concept")}>
         <RichContent content={material.explanation} />
+      </LessonSection>
+
+      <LessonSection title={t("appShell.lessonContent.terminology")}>
+        <dl className="grid gap-3 md:grid-cols-2">
+          {material.terminology.map((entry) => (
+            <div key={entry.term} className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
+              <dt className="text-sm font-bold text-[var(--fg)]">{entry.term}</dt>
+              <dd className="mt-2 text-sm leading-6 text-[var(--fg-muted)]">{entry.definition}</dd>
+              {entry.example ? <p className="mt-2 text-xs leading-5 text-[var(--fg-muted)]">Example: {entry.example}</p> : null}
+            </div>
+          ))}
+        </dl>
       </LessonSection>
 
       <LessonSection title={t("appShell.lessonContent.example")}>

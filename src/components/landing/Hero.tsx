@@ -75,26 +75,6 @@ export default function Hero() {
             </a>
           </div>
 
-          {/* Powered by Kaafiye Technology Center */}
-          <div className="mt-14 flex items-center gap-4 border-t border-neutral-200/80 pt-6 dark:border-neutral-800/80">
-            <div className="relative h-10 w-10 overflow-hidden rounded-md border border-neutral-200 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800 shrink-0">
-              <Image
-                src="/kafio.jpeg"
-                alt="Kaafiye Technology Center"
-                fill
-                sizes="40px"
-                className="object-cover"
-              />
-            </div>
-            <div>
-              <div className="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
-                {t("hero.poweredBy")}
-              </div>
-              <div className="text-sm font-bold text-neutral-900 dark:text-neutral-200">
-                {t("hero.poweredByOrg")}
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Hero Photo Column */}

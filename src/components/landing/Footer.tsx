@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useLanguage } from "@/hooks/useLanguage";
 
@@ -61,22 +60,6 @@ export default function Footer() {
               {t("footer.tagline")}
             </p>
 
-            {/* KTC Branding */}
-            <div className="mt-8 flex items-center gap-3 rounded-xl border border-neutral-200 bg-neutral-50/80 p-4 dark:border-neutral-800 dark:bg-[#121018]">
-              <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-md border border-neutral-200 dark:border-neutral-700">
-                <Image
-                  src="/kafio.jpeg"
-                  alt="Kaafiye Technology Center logo"
-                  fill
-                  sizes="36px"
-                  className="object-cover"
-                />
-              </div>
-              <div>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400">{t("footer.poweredBy")}</p>
-                <p className="text-sm font-bold text-neutral-900 dark:text-white">{t("hero.poweredByOrg")}</p>
-              </div>
-            </div>
           </div>
 
           {/* Link Columns */}

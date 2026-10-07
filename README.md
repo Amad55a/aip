@@ -60,13 +60,6 @@ both a key and model are enabled. `AI_PROVIDER_ORDER` can override the default
 provider's timeout (default 20 seconds). Provider credentials must remain
 server-side; never prefix them with `NEXT_PUBLIC_`.
 
-For authenticated public-web search, configure `GOOGLE_SEARCH_API_KEY` and
-`GOOGLE_SEARCH_ENGINE_ID` in `.env.local`. The API key is server-only and must
-never use a `NEXT_PUBLIC_` prefix. This project uses the TechPath AI Programmable
-Search Engine ID `615dccb62b5204d35`; the Search Engine must be configured to
-search the public web, and the Google Custom Search API must be enabled for the
-key's Google Cloud project.
-
 Each authenticated user gets `5` shared questions per UTC calendar day across
 lesson and project AI. The limit is enforced by PostgreSQL, not an environment
 variable or browser count, so direct RPC calls cannot raise it. Each learner
@@ -127,6 +120,47 @@ The curriculum migration creates:
 The lesson content migration adds structured content fields and seeds the HTML lessons, including the first HTML lesson's explanation, example, sandboxed preview code, notes, common mistakes, and practice activities.
 
 The multilingual content migration adds per-record `translations` JSON to the existing learning path, course, module, and lesson tables. The global language preference persists across reloads, controls server-rendered learning content, and sets the document's language and text direction. Lesson code samples remain unchanged while their surrounding explanations, examples, and quiz content use the selected locale when a translation is available.
+
+### Somali teacher audio storage
+
+Real Somali lesson recordings live outside the Git repository in the local folder:
+
+```bash
+techpath-ai-audio/
+```
+
+This folder is intentionally not committed to Git. Add the folder to your local deployment workflow and upload the final `.mp3` or `.m4a` files to a Supabase Storage bucket named `lesson-audio`.
+
+Recommended storage layout:
+
+```text
+lesson-audio/
+├── html/
+│   └── what-is-html-so.mp3
+├── css/
+│   └── what-is-css-so.mp3
+├── javascript/
+│   └── javascript-variables-so.mp3
+└── react/
+    └── react-state-so.mp3
+```
+
+A lesson can then reference the recording with either:
+
+- `audioUrl`: a direct public URL from Supabase Storage, or
+- `audioPath`: a bucket-relative path such as `html/what-is-html-so.mp3`
+
+The player resolves the final URL through the existing lesson data model without exposing any service-role secret. If local audio has not been uploaded yet, the player remains hidden and no broken playback is shown.
+
+To upload new recordings:
+
+1. Record the Somali lesson narration locally.
+2. Save it in the matching course/topic folder under `techpath-ai-audio/`.
+3. Upload the file to Supabase Storage bucket `lesson-audio` using the same relative path.
+4. Add the public URL or storage path to the lesson's audio metadata.
+5. Keep the file name stable so lesson content remains easy to maintain.
+
+The application does not generate or synthesize the voice at runtime. It only stores and plays the teacher's actual recordings.
 
 The Learn catalog shows every published path. A path needs published courses,
 modules, and lessons before learners can start it; the three additional path
@@ -224,23 +258,14 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
    `GROQ_MODEL`, `OPENROUTER_API_KEY`, and `OPENROUTER_MODEL` for configured
    fallbacks. Use model IDs supported by the corresponding accounts. Never
    create `NEXT_PUBLIC_*` AI credentials.
-4. To enable Web Search, add `GOOGLE_SEARCH_API_KEY` and
-   `GOOGLE_SEARCH_ENGINE_ID` to **Vercel → Project → Settings → Environment
-   Variables → Production**. Use the Google API key from the Google Cloud
-   project where Custom Search API is enabled and the Programmable Search
-   Engine configured for public-web search. Keep the API key server-only; do
-   not use a `NEXT_PUBLIC_` name. Redeploy after setting the variables.
-5. Apply and verify Supabase migrations in the same project referenced by
+4. Apply and verify Supabase migrations in the same project referenced by
    `NEXT_PUBLIC_SUPABASE_URL` before deploying the app. In Supabase Auth URL
    Configuration, set the exact production Site URL and add
    `https://<production-domain>/auth/callback` to Redirect URLs; retain the
    localhost callback for development. Configure Google/GitHub OAuth with
    Supabase's exact provider callback URL shown in the dashboard.
-6. Deploy a Vercel Preview, test sign-in and contextual lesson/project AI, then
-   deploy to Production. Verify web search at
-   `https://techpathai.tech/web-search` and
-   `https://techpathai.tech/web-search?q=javascript`. Redeploy after changing
-   Vercel environment variables.
+5. Deploy a Vercel Preview, test sign-in and contextual lesson/project AI, then
+   deploy to Production.
 
 Run `npm test`, `npm run lint`, and `npm run build` before deploying. Keep
 `.env.local` out of Git. Rotate provider credentials immediately if they are

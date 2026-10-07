@@ -129,10 +129,15 @@ export default async function LessonPage({
     explanation: material.explanation,
     example: material.example,
     codeExample: material.codeExample,
+    terminology: material.terminology,
+    phaseSections: material.phaseSections,
     useCases: material.useCases,
     mistakes: material.mistakes,
     tips: material.tips,
     practice: material.practice,
+    audioUrl: material.audioUrl,
+    audioPath: material.audioPath,
+    audioLanguage: material.audioLanguage,
     ...localizedContent?.study_material,
   };
   const availableQuiz = resolveLessonQuiz(localizedLesson.quiz_questions, material);

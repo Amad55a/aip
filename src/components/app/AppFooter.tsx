@@ -22,12 +22,6 @@ export default function AppFooter() {
           <p className="text-xs text-[var(--fg-muted)]">
             {t("appShell.footer.copyright")}
           </p>
-          <p className="text-xs text-[var(--fg-muted)]">
-            {t("appShell.footer.poweredBy")}{" "}
-            <span className="font-medium text-[var(--fg)]">
-              {t("appShell.footer.poweredByOrg")}
-            </span>
-          </p>
         </div>
 
         {/* Footer nav */}
